@@ -1,18 +1,25 @@
-import type { Metadata } from 'next';
+'use client'
 
-export const metadata: Metadata = {
-  title: 'Sangikyo V2',
-  description: '営業支援AIエージェント',
-};
+import './globals.css'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { Toaster } from 'react-hot-toast'
+import { useState } from 'react'
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
+  const [queryClient] = useState(() => new QueryClient())
+
   return (
     <html lang="ja">
-      <body>{children}</body>
+      <body>
+        <QueryClientProvider client={queryClient}>
+          {children}
+          <Toaster position="top-right" />
+        </QueryClientProvider>
+      </body>
     </html>
-  );
+  )
 }

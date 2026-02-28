@@ -1,59 +1,77 @@
-'use client';
+'use client'
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react'
+import { Header } from '@/components/layout/Header'
+import { ChatInput } from '@/components/chat/ChatInput'
+import { ChatMessage } from '@/components/chat/ChatMessage'
+import { ProgressIndicator } from '@/components/chat/ProgressIndicator'
+import { useSSE } from '@/hooks/useSSE'
+
+interface Message {
+  role: 'user' | 'assistant'
+  content: string
+}
 
 export default function Home() {
-  const [backendMessage, setBackendMessage] = useState<string>('Loading...');
-  const [backendStatus, setBackendStatus] = useState<string>('');
+  const [messages, setMessages] = useState<Message[]>([])
+  const [currentQuery, setCurrentQuery] = useState<string | null>(null)
 
-  useEffect(() => {
-    // バックエンドAPIを呼び出す
-    const fetchBackend = async () => {
-      try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-        const response = await fetch(`${apiUrl}/api/hello?name=Next.js`);
-        const data = await response.json();
-        setBackendMessage(data.message);
-        setBackendStatus('✅ Backend connected');
-      } catch (error) {
-        setBackendMessage('Failed to connect to backend');
-        setBackendStatus('❌ Backend connection failed');
-        console.error('Backend error:', error);
-      }
-    };
+  const { messages: sseEvents, isStreaming, error } = useSSE('1', currentQuery)
 
-    fetchBackend();
-  }, []);
+  const handleSubmit = (query: string) => {
+    // ユーザーメッセージを追加
+    setMessages((prev) => [...prev, { role: 'user', content: query }])
+    // SSE ストリーミング開始
+    setCurrentQuery(query)
+  }
+
+  // SSE が完了したら結果をメッセージに追加
+  if (!isStreaming && sseEvents.length > 0 && currentQuery) {
+    const resultEvent = sseEvents.find((e) => e.type === 'result')
+    if (resultEvent) {
+      setMessages((prev) => [
+        ...prev,
+        { role: 'assistant', content: resultEvent.message },
+      ])
+      setCurrentQuery(null)
+    }
+  }
 
   return (
-    <main style={{ padding: '2rem', fontFamily: 'system-ui, sans-serif' }}>
-      <h1>🚀 Sangikyo V2 - Hello World</h1>
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <Header />
 
-      <div style={{ marginTop: '2rem', padding: '1rem', border: '1px solid #ddd', borderRadius: '8px' }}>
-        <h2>Frontend (Next.js)</h2>
-        <p>✅ Next.js is running!</p>
-        <p style={{ fontSize: '0.9rem', color: '#666' }}>
-          This page is served from Azure Static Web Apps
-        </p>
-      </div>
+      <main className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
+        <div className="space-y-4">
+          {/* メッセージ履歴 */}
+          {messages.map((message, idx) => (
+            <ChatMessage
+              key={idx}
+              role={message.role}
+              content={message.content}
+            />
+          ))}
 
-      <div style={{ marginTop: '1rem', padding: '1rem', border: '1px solid #ddd', borderRadius: '8px' }}>
-        <h2>Backend (FastAPI)</h2>
-        <p>{backendStatus}</p>
-        <p><strong>Message from backend:</strong> {backendMessage}</p>
-        <p style={{ fontSize: '0.9rem', color: '#666' }}>
-          API URL: {process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}
-        </p>
-      </div>
+          {/* 進捗インジケーター */}
+          {currentQuery && (
+            <ProgressIndicator events={sseEvents} isStreaming={isStreaming} />
+          )}
 
-      <div style={{ marginTop: '2rem', padding: '1rem', backgroundColor: '#f0f0f0', borderRadius: '8px' }}>
-        <h3>Next Steps:</h3>
-        <ol>
-          <li>Run Terraform to create Azure resources</li>
-          <li>Push to GitHub to trigger deployment</li>
-          <li>Verify both services are running in Azure</li>
-        </ol>
+          {/* エラー表示 */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+              {error}
+            </div>
+          )}
+        </div>
+      </main>
+
+      {/* 入力フォーム */}
+      <div className="sticky bottom-0 bg-white border-t border-gray-200 shadow-lg">
+        <div className="container mx-auto px-4 py-4 max-w-4xl">
+          <ChatInput onSubmit={handleSubmit} disabled={isStreaming} />
+        </div>
       </div>
-    </main>
-  );
+    </div>
+  )
 }
