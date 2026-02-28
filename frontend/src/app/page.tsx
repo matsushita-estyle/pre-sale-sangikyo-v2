@@ -40,14 +40,9 @@ export default function Home() {
   return (
     <MainLayout>
       <div className="flex flex-col h-screen">
-        {/* ヘッダー */}
-        <header className="bg-white border-b border-gray-200 px-6 py-4">
-          <h1 className="text-2xl font-bold text-gray-900">
-            営業支援AIエージェント
-          </h1>
-          <p className="text-sm text-gray-600 mt-1">
-            質問を入力してください
-          </p>
+        {/* ヘッダー（将来的に情報を追加する可能性あり） */}
+        <header className="bg-white border-b border-gray-200 px-6 py-2">
+          {/* 将来的にタイトルや情報を追加 */}
         </header>
 
         {/* メインコンテンツ */}
@@ -77,7 +72,7 @@ export default function Home() {
         </main>
 
         {/* 入力フォーム */}
-        <div className="bg-white border-t border-gray-200 px-6 py-4">
+        <div className="px-6 py-4">
           <div className="max-w-4xl mx-auto">
             <ChatInput onSubmit={handleSubmit} disabled={isStreaming} />
           </div>

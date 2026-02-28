@@ -38,7 +38,7 @@ export function Sidebar({ isExpanded, onToggle }: SidebarProps) {
                 : 'opacity-0 w-0 overflow-hidden'
             }`}
           >
-            営業支援AI
+            SFA Agent
           </h2>
           <button
             onClick={onToggle}
@@ -102,8 +102,8 @@ export function Sidebar({ isExpanded, onToggle }: SidebarProps) {
               isExpanded ? 'block' : 'hidden'
             }`}
           >
-            <p className="font-semibold mb-1">Sangikyo V2</p>
-            <p>Powered by Gemini</p>
+            <p className="font-semibold mb-1">SFA Agent V2</p>
+            <p>Powered by ESTYLE</p>
           </div>
         </div>
       </div>
