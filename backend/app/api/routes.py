@@ -3,6 +3,7 @@
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import StreamingResponse
 
 from app.core.dependencies import get_customer_repository, get_deal_repository, get_user_repository
 from app.core.exceptions import NotFoundException
@@ -11,6 +12,8 @@ from app.repositories.customer import CustomerRepository
 from app.repositories.deal import DealRepository
 from app.repositories.user import UserRepository
 from app.services.copilot_service import CopilotService, get_copilot_service
+from app.schemas.agent import AgentQueryRequest, ProgressEvent, ProgressEventType
+from app.agent.mock_orchestrator import MockAgentOrchestrator
 
 logger = logging.getLogger(__name__)
 
@@ -243,3 +246,49 @@ async def chat(
     except Exception as e:
         logger.error(f"Error in chat endpoint: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error processing chat: {str(e)}")
+
+
+# ============================================================
+# Agent (SSE Streaming) Endpoints
+# ============================================================
+
+
+@router.post("/agent/query-stream")
+async def agent_query_stream(request: AgentQueryRequest):
+    """
+    エージェントクエリ（SSEストリーミング）
+
+    進捗状況をリアルタイムで返す（モック版）
+
+    Args:
+        request: Agent query request with user_id and query
+
+    Returns:
+        Server-Sent Events stream
+    """
+    orchestrator = MockAgentOrchestrator()
+
+    async def generate():
+        try:
+            async for event in orchestrator.execute_query_stream(
+                request.user_id, request.query
+            ):
+                # ProgressEventをJSON化してSSEフォーマットで送信
+                yield f"data: {event.model_dump_json()}\n\n"
+        except Exception as e:
+            # エラー時もSSEで送信
+            logger.error(f"Error in agent query stream: {e}", exc_info=True)
+            error_event = ProgressEvent(
+                type=ProgressEventType.ERROR, message=str(e)
+            )
+            yield f"data: {error_event.model_dump_json()}\n\n"
+
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",  # Nginx buffering無効化
+        },
+    )

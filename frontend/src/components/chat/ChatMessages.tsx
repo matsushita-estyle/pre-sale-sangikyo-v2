@@ -2,26 +2,37 @@
 
 import { useEffect, useRef } from 'react'
 import { ChatMessage } from './ChatMessage'
+import { AgentProgress } from '../agent/AgentProgress'
 import { AlertCircle } from 'lucide-react'
+import { ProgressEvent, SearchHistoryItem } from '@/types/agent'
 
 interface Message {
   role: 'user' | 'assistant'
   content: string
+  searchHistory?: SearchHistoryItem[]
 }
 
 interface ChatMessagesProps {
   messages: Message[]
   isLoading: boolean
   error: string | null
+  agentEvents?: ProgressEvent[]
+  agentCurrentMessage?: string
 }
 
-export function ChatMessages({ messages, isLoading, error }: ChatMessagesProps) {
+export function ChatMessages({
+  messages,
+  isLoading,
+  error,
+  agentEvents = [],
+  agentCurrentMessage = '',
+}: ChatMessagesProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   // 新しいメッセージが追加されたら自動スクロール
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages, isLoading])
+  }, [messages, isLoading, agentEvents])
 
   return (
     <main className="flex-1 overflow-y-auto px-6 py-8">
@@ -32,11 +43,19 @@ export function ChatMessages({ messages, isLoading, error }: ChatMessagesProps) 
             key={idx}
             role={message.role}
             content={message.content}
+            searchHistory={message.searchHistory}
           />
         ))}
 
-        {/* ローディング表示 */}
-        {isLoading && (
+        {/* エージェント進捗表示（ローディング中のみ） */}
+        {isLoading && (agentEvents.length > 0 || agentCurrentMessage) && (
+          <div className="mb-6">
+            <AgentProgress events={agentEvents} currentMessage={agentCurrentMessage} />
+          </div>
+        )}
+
+        {/* 従来のローディング表示（エージェント進捗がない場合） */}
+        {isLoading && agentEvents.length === 0 && !agentCurrentMessage && (
           <div className="flex items-center space-x-2 text-gray-600 mb-4">
             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>
             <span>回答を生成中...</span>
