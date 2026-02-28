@@ -32,7 +32,7 @@ export function ChatMessage({ role, content }: ChatMessageProps) {
 
   return (
     <div className="flex justify-start mb-6">
-      <div className="max-w-[90%] [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:mt-6 [&_h2]:mb-4 [&_h2]:text-gray-800 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:mt-5 [&_h3]:mb-3 [&_h3]:text-gray-800 [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:my-4 [&_li]:my-1 [&_li]:leading-7 [&_strong]:font-semibold [&_strong]:text-gray-900 [&_p]:my-3 [&_p]:leading-7">
+      <div className="max-w-[90%] [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:mt-6 [&_h2]:mb-4 [&_h2]:text-gray-800 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:mt-5 [&_h3]:mb-3 [&_h3]:text-gray-800 [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:my-4 [&_li]:my-1 [&_li]:leading-7 [&_strong]:font-semibold [&_strong]:text-gray-900 [&_p]:my-3 [&_p]:leading-7 [&_hr]:my-6 [&_hr]:border-t [&_hr]:border-gray-300">
         <div
           dangerouslySetInnerHTML={{ __html: html as string }}
         />
