@@ -13,7 +13,7 @@ GitHubリポジトリの **Settings** → **Secrets and variables** → **Action
 bf62c3376df8617a746854f067f881c92ca42622efb5b4221b88005cb0b2756302-f2294582-2d24-40db-b243-c0a78c928bb800019080a11bfb00
 ```
 
-### 2. AZURE_WEBAPP_NAME
+### 2. AZURE_BACKEND_WEBAPP_NAME
 
 バックエンド（App Service）の名前。
 
@@ -22,7 +22,7 @@ bf62c3376df8617a746854f067f881c92ca42622efb5b4221b88005cb0b2756302-f2294582-2d24
 sangikyo-v2-backend
 ```
 
-### 3. AZURE_WEBAPP_PUBLISH_PROFILE
+### 3. AZURE_BACKEND_PUBLISH_PROFILE
 
 バックエンド（App Service）のPublish Profile（XML形式）。
 
@@ -36,9 +36,9 @@ az webapp deployment list-publishing-profiles \
 
 **値:** 上記コマンドの出力全体をコピー（XML形式）
 
-### 4. BACKEND_URL
+### 4. NEXT_PUBLIC_API_URL
 
-フロントエンドがバックエンドAPIを呼び出すURL。
+フロントエンド（Next.js）がバックエンドAPIを呼び出すURL。
 
 **値:**
 ```
