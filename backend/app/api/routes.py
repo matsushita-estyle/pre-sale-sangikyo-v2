@@ -2,14 +2,13 @@
 import logging
 from fastapi import APIRouter, Depends, HTTPException, Query
 from typing import List, Optional
-from app.models.schemas import User, Customer, Deal  # ChatRequest, ChatResponse
+from app.models.schemas import User, Customer, Deal, ChatRequest, ChatResponse
 from app.repositories.user import UserRepository
 from app.repositories.customer import CustomerRepository
 from app.repositories.deal import DealRepository
 from app.core.dependencies import get_user_repository, get_customer_repository, get_deal_repository
 from app.core.exceptions import NotFoundException, DatabaseException
-# Temporarily disabled for Azure debugging
-# from app.services.copilot_service import get_copilot_service, CopilotService
+from app.services.copilot_service import get_copilot_service, CopilotService
 
 logger = logging.getLogger(__name__)
 
@@ -216,28 +215,29 @@ async def get_deal(
 
 
 # ============================================================
-# Copilot (AI Chat) Endpoints - TEMPORARILY DISABLED FOR DEBUGGING
+# Copilot (AI Chat) Endpoints
 # ============================================================
 
-# @router.post("/copilot/chat", response_model=ChatResponse)
-# async def chat(
-#     request: ChatRequest,
-#     copilot_service: CopilotService = Depends(get_copilot_service),
-# ):
-#     """
-#     AI chat endpoint.
-#
-#     Args:
-#         request: Chat request with user_id and query
-#         copilot_service: CopilotService dependency
-#
-#     Returns:
-#         AI-generated response
-#     """
-#     try:
-#         logger.info(f"Chat request from user {request.user_id}: {request.query[:50]}...")
-#         response_text = await copilot_service.chat(request.user_id, request.query)
-#         return ChatResponse(response=response_text)
-#     except Exception as e:
-#         logger.error(f"Error in chat endpoint: {e}", exc_info=True)
-#         raise HTTPException(status_code=500, detail=f"Error processing chat: {str(e)}")
+
+@router.post("/copilot/chat", response_model=ChatResponse)
+async def chat(
+    request: ChatRequest,
+    copilot_service: CopilotService = Depends(get_copilot_service),
+):
+    """
+    AI chat endpoint.
+
+    Args:
+        request: Chat request with user_id and query
+        copilot_service: CopilotService dependency
+
+    Returns:
+        AI-generated response
+    """
+    try:
+        logger.info(f"Chat request from user {request.user_id}: {request.query[:50]}...")
+        response_text = await copilot_service.chat(request.user_id, request.query)
+        return ChatResponse(response=response_text)
+    except Exception as e:
+        logger.error(f"Error in chat endpoint: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Error processing chat: {str(e)}")
