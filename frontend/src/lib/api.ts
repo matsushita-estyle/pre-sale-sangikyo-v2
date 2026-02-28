@@ -57,3 +57,35 @@ export async function getDeals(): Promise<Deal[]> {
   }
   return response.json()
 }
+
+export interface ChatRequest {
+  user_id: string
+  query: string
+}
+
+export interface ChatResponse {
+  response: string
+}
+
+export async function sendChatMessage(
+  userId: string,
+  query: string
+): Promise<string> {
+  const response = await fetch(`${API_BASE_URL}/api/v1/copilot/chat`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      user_id: userId,
+      query: query,
+    }),
+  })
+
+  if (!response.ok) {
+    throw new Error('Failed to send chat message')
+  }
+
+  const data: ChatResponse = await response.json()
+  return data.response
+}

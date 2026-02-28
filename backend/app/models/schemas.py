@@ -1,7 +1,7 @@
 """Pydantic schemas for API models."""
 from typing import Optional, List
 from datetime import date
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class User(BaseModel):
@@ -38,3 +38,16 @@ class Deal(BaseModel):
     service_type: Optional[str] = None  # サービス種別（通信インフラ構築、人材派遣、危機管理対策）
     last_contact_date: Optional[str] = None  # 最終接触日（YYYY-MM-DD形式）
     notes: Optional[str] = None  # メモ・提案内容
+
+
+class ChatRequest(BaseModel):
+    """Chat request model."""
+
+    user_id: str = Field(..., description="User ID")
+    query: str = Field(..., description="User's question")
+
+
+class ChatResponse(BaseModel):
+    """Chat response model."""
+
+    response: str = Field(..., description="AI-generated response")

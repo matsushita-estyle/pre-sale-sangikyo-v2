@@ -4,8 +4,7 @@ import { useState } from 'react'
 import { MainLayout } from '@/components/layout/MainLayout'
 import { ChatInput } from '@/components/chat/ChatInput'
 import { ChatMessage } from '@/components/chat/ChatMessage'
-import { ProgressIndicator } from '@/components/chat/ProgressIndicator'
-import { useSSE } from '@/hooks/useSSE'
+import { sendChatMessage } from '@/lib/api'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -14,26 +13,25 @@ interface Message {
 
 export default function Home() {
   const [messages, setMessages] = useState<Message[]>([])
-  const [currentQuery, setCurrentQuery] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const { messages: sseEvents, isStreaming, error } = useSSE('1', currentQuery)
-
-  const handleSubmit = (query: string) => {
+  const handleSubmit = async (query: string) => {
     // ユーザーメッセージを追加
     setMessages((prev) => [...prev, { role: 'user', content: query }])
-    // SSE ストリーミング開始
-    setCurrentQuery(query)
-  }
+    setIsLoading(true)
+    setError(null)
 
-  // SSE が完了したら結果をメッセージに追加
-  if (!isStreaming && sseEvents.length > 0 && currentQuery) {
-    const resultEvent = sseEvents.find((e) => e.type === 'result')
-    if (resultEvent) {
-      setMessages((prev) => [
-        ...prev,
-        { role: 'assistant', content: resultEvent.message },
-      ])
-      setCurrentQuery(null)
+    try {
+      // バックエンドAPIを呼び出し
+      const response = await sendChatMessage('1', query)
+
+      // アシスタントの応答を追加
+      setMessages((prev) => [...prev, { role: 'assistant', content: response }])
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'エラーが発生しました')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -57,9 +55,12 @@ export default function Home() {
               />
             ))}
 
-            {/* 進捗インジケーター */}
-            {currentQuery && (
-              <ProgressIndicator events={sseEvents} isStreaming={isStreaming} />
+            {/* ローディング表示 */}
+            {isLoading && (
+              <div className="flex items-center space-x-2 text-gray-600">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>
+                <span>回答を生成中...</span>
+              </div>
             )}
 
             {/* エラー表示 */}
@@ -74,7 +75,7 @@ export default function Home() {
         {/* 入力フォーム */}
         <div className="px-6 py-4">
           <div className="max-w-4xl mx-auto">
-            <ChatInput onSubmit={handleSubmit} disabled={isStreaming} />
+            <ChatInput onSubmit={handleSubmit} disabled={isLoading} />
           </div>
         </div>
       </div>
