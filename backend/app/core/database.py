@@ -1,5 +1,7 @@
 """Cosmos DB client management."""
-from azure.cosmos import CosmosClient, PartitionKey
+
+from azure.cosmos import CosmosClient
+
 from app.core.config import settings
 
 

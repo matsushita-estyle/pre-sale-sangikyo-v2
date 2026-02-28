@@ -1,14 +1,16 @@
 """API routes."""
+
 import logging
+
 from fastapi import APIRouter, Depends, HTTPException, Query
-from typing import List, Optional
-from app.models.schemas import User, Customer, Deal, ChatRequest, ChatResponse
-from app.repositories.user import UserRepository
+
+from app.core.dependencies import get_customer_repository, get_deal_repository, get_user_repository
+from app.core.exceptions import NotFoundException
+from app.models.schemas import ChatRequest, ChatResponse, Customer, Deal, User
 from app.repositories.customer import CustomerRepository
 from app.repositories.deal import DealRepository
-from app.core.dependencies import get_user_repository, get_customer_repository, get_deal_repository
-from app.core.exceptions import NotFoundException, DatabaseException
-from app.services.copilot_service import get_copilot_service, CopilotService
+from app.repositories.user import UserRepository
+from app.services.copilot_service import CopilotService, get_copilot_service
 
 logger = logging.getLogger(__name__)
 
@@ -20,10 +22,10 @@ router = APIRouter(prefix="/api/v1", tags=["data"])
 # ============================================================
 
 
-@router.get("/users", response_model=List[User])
+@router.get("/users", response_model=list[User])
 async def get_users(
-    department: Optional[str] = Query(None, description="Filter by department"),
-    role: Optional[str] = Query(None, description="Filter by role"),
+    department: str | None = Query(None, description="Filter by department"),
+    role: str | None = Query(None, description="Filter by role"),
     repo: UserRepository = Depends(get_user_repository),
 ):
     """Get all users or filter by department/role.
@@ -83,10 +85,10 @@ async def get_user(
 # ============================================================
 
 
-@router.get("/customers", response_model=List[Customer])
+@router.get("/customers", response_model=list[Customer])
 async def get_customers(
-    industry: Optional[str] = Query(None, description="Filter by industry"),
-    search: Optional[str] = Query(None, description="Search by name"),
+    industry: str | None = Query(None, description="Filter by industry"),
+    search: str | None = Query(None, description="Search by name"),
     repo: CustomerRepository = Depends(get_customer_repository),
 ):
     """Get all customers or filter by industry/search.
@@ -146,12 +148,12 @@ async def get_customer(
 # ============================================================
 
 
-@router.get("/deals", response_model=List[Deal])
+@router.get("/deals", response_model=list[Deal])
 async def get_deals(
-    sales_user_id: Optional[str] = Query(None, description="Filter by sales user ID"),
-    customer_id: Optional[str] = Query(None, description="Filter by customer ID"),
-    deal_stage: Optional[str] = Query(None, description="Filter by deal stage"),
-    service_type: Optional[str] = Query(None, description="Filter by service type"),
+    sales_user_id: str | None = Query(None, description="Filter by sales user ID"),
+    customer_id: str | None = Query(None, description="Filter by customer ID"),
+    deal_stage: str | None = Query(None, description="Filter by deal stage"),
+    service_type: str | None = Query(None, description="Filter by service type"),
     repo: DealRepository = Depends(get_deal_repository),
 ):
     """Get all deals or filter by various criteria.

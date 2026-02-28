@@ -1,11 +1,12 @@
 """Copilot service for AI chat functionality."""
-import os
+
 import logging
+import os
+
 from google import genai
-from google.genai import types
-from typing import Optional
-from app.repositories.deal import DealRepository
+
 from app.repositories.customer import CustomerRepository
+from app.repositories.deal import DealRepository
 
 logger = logging.getLogger(__name__)
 
@@ -15,8 +16,8 @@ class CopilotService:
 
     def __init__(
         self,
-        deal_repo: Optional[DealRepository] = None,
-        customer_repo: Optional[CustomerRepository] = None,
+        deal_repo: DealRepository | None = None,
+        customer_repo: CustomerRepository | None = None,
     ):
         """Initialize Gemini API."""
         api_key = os.getenv("GEMINI_API_KEY")
@@ -53,13 +54,13 @@ class CopilotService:
             context_parts = ["【あなたの担当案件】"]
             for deal in deals:
                 deal_info = f"""
-- 顧客: {deal.customer_name or '不明'}
+- 顧客: {deal.customer_name or "不明"}
   案件ID: {deal.deal_id}
   ステージ: {deal.deal_stage}
-  サービス種別: {deal.service_type or '未設定'}
-  金額: {f'¥{int(deal.deal_amount):,}' if deal.deal_amount else '未設定'}
-  最終接触日: {deal.last_contact_date or '未記録'}
-  メモ: {deal.notes or 'なし'}"""
+  サービス種別: {deal.service_type or "未設定"}
+  金額: {f"¥{int(deal.deal_amount):,}" if deal.deal_amount else "未設定"}
+  最終接触日: {deal.last_contact_date or "未記録"}
+  メモ: {deal.notes or "なし"}"""
                 context_parts.append(deal_info)
 
             return "\n".join(context_parts)
@@ -125,10 +126,7 @@ class CopilotService:
 """
 
             # Generate response
-            response = self.client.models.generate_content(
-                model=self.model_id,
-                contents=prompt
-            )
+            response = self.client.models.generate_content(model=self.model_id, contents=prompt)
 
             if not response.text:
                 logger.warning("Empty response from Gemini API")
@@ -143,7 +141,7 @@ class CopilotService:
 
 
 # Singleton instance
-_copilot_service: Optional[CopilotService] = None
+_copilot_service: CopilotService | None = None
 
 
 def get_copilot_service() -> CopilotService:

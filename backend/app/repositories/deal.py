@@ -1,8 +1,9 @@
 """Deal repository for deal data access."""
+
 import logging
-from typing import List, Optional
-from app.repositories.base import BaseRepository
+
 from app.models.schemas import Deal
+from app.repositories.base import BaseRepository
 
 logger = logging.getLogger(__name__)
 
@@ -14,7 +15,7 @@ class DealRepository(BaseRepository[Deal]):
         """Initialize DealRepository."""
         super().__init__("Deals")
 
-    async def get_all_deals(self) -> List[Deal]:
+    async def get_all_deals(self) -> list[Deal]:
         """Get all deals.
 
         Returns:
@@ -23,7 +24,7 @@ class DealRepository(BaseRepository[Deal]):
         items = await self.get_all()
         return [Deal(**item) for item in items]
 
-    async def get_deal_by_id(self, deal_id: str) -> Optional[Deal]:
+    async def get_deal_by_id(self, deal_id: str) -> Deal | None:
         """Get deal by ID.
 
         Args:
@@ -35,7 +36,7 @@ class DealRepository(BaseRepository[Deal]):
         item = await self.get_by_id(item_id=deal_id, partition_key=deal_id)
         return Deal(**item) if item else None
 
-    async def get_deals_by_user(self, sales_user_id: str) -> List[Deal]:
+    async def get_deals_by_user(self, sales_user_id: str) -> list[Deal]:
         """Get deals by sales user.
 
         Args:
@@ -49,7 +50,7 @@ class DealRepository(BaseRepository[Deal]):
         items = await self.query(query=query, parameters=parameters)
         return [Deal(**item) for item in items]
 
-    async def get_deals_by_customer(self, customer_id: str) -> List[Deal]:
+    async def get_deals_by_customer(self, customer_id: str) -> list[Deal]:
         """Get deals by customer.
 
         Args:
@@ -63,7 +64,7 @@ class DealRepository(BaseRepository[Deal]):
         items = await self.query(query=query, parameters=parameters)
         return [Deal(**item) for item in items]
 
-    async def get_deals_by_stage(self, deal_stage: str) -> List[Deal]:
+    async def get_deals_by_stage(self, deal_stage: str) -> list[Deal]:
         """Get deals by stage.
 
         Args:
@@ -77,7 +78,7 @@ class DealRepository(BaseRepository[Deal]):
         items = await self.query(query=query, parameters=parameters)
         return [Deal(**item) for item in items]
 
-    async def get_deals_by_service_type(self, service_type: str) -> List[Deal]:
+    async def get_deals_by_service_type(self, service_type: str) -> list[Deal]:
         """Get deals by service type.
 
         Args:

@@ -1,7 +1,10 @@
 """Base repository for common CRUD operations."""
+
 import logging
-from typing import List, Optional, TypeVar, Generic
+from typing import Generic, TypeVar
+
 from azure.cosmos import ContainerProxy
+
 from app.core.database import cosmos_client
 
 logger = logging.getLogger(__name__)
@@ -22,7 +25,7 @@ class BaseRepository(Generic[T]):
         self.container: ContainerProxy = cosmos_client.get_container(container_name)
         logger.debug(f"Repository initialized for container: {container_name}")
 
-    async def get_all(self) -> List[dict]:
+    async def get_all(self) -> list[dict]:
         """Get all items from the container.
 
         Returns:
@@ -30,18 +33,14 @@ class BaseRepository(Generic[T]):
         """
         try:
             query = "SELECT * FROM c"
-            items = list(
-                self.container.query_items(
-                    query=query, enable_cross_partition_query=True
-                )
-            )
+            items = list(self.container.query_items(query=query, enable_cross_partition_query=True))
             logger.info(f"Retrieved {len(items)} items from {self.container_name}")
             return items
         except Exception as e:
             logger.error(f"Error getting all items from {self.container_name}: {e}")
             raise
 
-    async def get_by_id(self, item_id: str, partition_key: str) -> Optional[dict]:
+    async def get_by_id(self, item_id: str, partition_key: str) -> dict | None:
         """Get item by ID.
 
         Args:
@@ -59,7 +58,7 @@ class BaseRepository(Generic[T]):
             logger.warning(f"Item {item_id} not found in {self.container_name}: {e}")
             return None
 
-    async def query(self, query: str, parameters: Optional[List] = None) -> List[dict]:
+    async def query(self, query: str, parameters: list | None = None) -> list[dict]:
         """Execute a custom query.
 
         Args:

@@ -1,4 +1,5 @@
 """Seed demo data to Cosmos DB."""
+
 from app.core.database import cosmos_client
 
 
@@ -150,7 +151,9 @@ def seed_deals():
     for deal in demo_deals:
         try:
             deals_container.upsert_item(deal)
-            print(f"✓ Deal created: {deal['customer_name']} - {deal['service_type']} ({deal['deal_stage']})")
+            print(
+                f"✓ Deal created: {deal['customer_name']} - {deal['service_type']} ({deal['deal_stage']})"
+            )
         except Exception as e:
             print(f"✗ Error creating deal {deal['deal_id']}: {e}")
 

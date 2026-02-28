@@ -1,8 +1,9 @@
 """User repository for user data access."""
+
 import logging
-from typing import List, Optional
-from app.repositories.base import BaseRepository
+
 from app.models.schemas import User
+from app.repositories.base import BaseRepository
 
 logger = logging.getLogger(__name__)
 
@@ -14,7 +15,7 @@ class UserRepository(BaseRepository[User]):
         """Initialize UserRepository."""
         super().__init__("Users")
 
-    async def get_all_users(self) -> List[User]:
+    async def get_all_users(self) -> list[User]:
         """Get all users.
 
         Returns:
@@ -23,7 +24,7 @@ class UserRepository(BaseRepository[User]):
         items = await self.get_all()
         return [User(**item) for item in items]
 
-    async def get_user_by_id(self, user_id: str) -> Optional[User]:
+    async def get_user_by_id(self, user_id: str) -> User | None:
         """Get user by ID.
 
         Args:
@@ -35,7 +36,7 @@ class UserRepository(BaseRepository[User]):
         item = await self.get_by_id(item_id=user_id, partition_key=user_id)
         return User(**item) if item else None
 
-    async def get_users_by_department(self, department: str) -> List[User]:
+    async def get_users_by_department(self, department: str) -> list[User]:
         """Get users by department.
 
         Args:
@@ -49,7 +50,7 @@ class UserRepository(BaseRepository[User]):
         items = await self.query(query=query, parameters=parameters)
         return [User(**item) for item in items]
 
-    async def get_users_by_role(self, role: str) -> List[User]:
+    async def get_users_by_role(self, role: str) -> list[User]:
         """Get users by role.
 
         Args:

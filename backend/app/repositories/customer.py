@@ -1,8 +1,9 @@
 """Customer repository for customer data access."""
+
 import logging
-from typing import List, Optional
-from app.repositories.base import BaseRepository
+
 from app.models.schemas import Customer
+from app.repositories.base import BaseRepository
 
 logger = logging.getLogger(__name__)
 
@@ -14,7 +15,7 @@ class CustomerRepository(BaseRepository[Customer]):
         """Initialize CustomerRepository."""
         super().__init__("Customers")
 
-    async def get_all_customers(self) -> List[Customer]:
+    async def get_all_customers(self) -> list[Customer]:
         """Get all customers.
 
         Returns:
@@ -23,7 +24,7 @@ class CustomerRepository(BaseRepository[Customer]):
         items = await self.get_all()
         return [Customer(**item) for item in items]
 
-    async def get_customer_by_id(self, customer_id: str) -> Optional[Customer]:
+    async def get_customer_by_id(self, customer_id: str) -> Customer | None:
         """Get customer by ID.
 
         Args:
@@ -35,7 +36,7 @@ class CustomerRepository(BaseRepository[Customer]):
         item = await self.get_by_id(item_id=customer_id, partition_key=customer_id)
         return Customer(**item) if item else None
 
-    async def get_customers_by_industry(self, industry: str) -> List[Customer]:
+    async def get_customers_by_industry(self, industry: str) -> list[Customer]:
         """Get customers by industry.
 
         Args:
@@ -49,7 +50,7 @@ class CustomerRepository(BaseRepository[Customer]):
         items = await self.query(query=query, parameters=parameters)
         return [Customer(**item) for item in items]
 
-    async def search_customers(self, keyword: str) -> List[Customer]:
+    async def search_customers(self, keyword: str) -> list[Customer]:
         """Search customers by name.
 
         Args:
