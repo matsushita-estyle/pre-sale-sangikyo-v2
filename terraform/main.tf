@@ -76,3 +76,82 @@ resource "azurerm_static_web_app" "frontend" {
 
   tags = var.tags
 }
+
+# Cosmos DB アカウント
+resource "azurerm_cosmosdb_account" "main" {
+  name                = "${var.project_name}-cosmosdb"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+  offer_type          = "Standard"
+  kind                = "GlobalDocumentDB"
+
+  enable_automatic_failover = false
+  enable_free_tier          = false  # 無料枠は既に別アカウントで使用中
+
+  consistency_policy {
+    consistency_level = "Session"
+  }
+
+  geo_location {
+    location          = azurerm_resource_group.main.location
+    failover_priority = 0
+  }
+
+  capabilities {
+    name = "EnableServerless"  # サーバーレスモード
+  }
+
+  tags = var.tags
+}
+
+# Cosmos DB データベース
+resource "azurerm_cosmosdb_sql_database" "main" {
+  name                = "SangikyoDB"
+  resource_group_name = azurerm_resource_group.main.name
+  account_name        = azurerm_cosmosdb_account.main.name
+}
+
+# Users コンテナ
+resource "azurerm_cosmosdb_sql_container" "users" {
+  name                = "Users"
+  resource_group_name = azurerm_resource_group.main.name
+  account_name        = azurerm_cosmosdb_account.main.name
+  database_name       = azurerm_cosmosdb_sql_database.main.name
+  partition_key_path  = "/user_id"
+}
+
+# Customers コンテナ
+resource "azurerm_cosmosdb_sql_container" "customers" {
+  name                = "Customers"
+  resource_group_name = azurerm_resource_group.main.name
+  account_name        = azurerm_cosmosdb_account.main.name
+  database_name       = azurerm_cosmosdb_sql_database.main.name
+  partition_key_path  = "/customer_id"
+}
+
+# Products コンテナ
+resource "azurerm_cosmosdb_sql_container" "products" {
+  name                = "Products"
+  resource_group_name = azurerm_resource_group.main.name
+  account_name        = azurerm_cosmosdb_account.main.name
+  database_name       = azurerm_cosmosdb_sql_database.main.name
+  partition_key_path  = "/product_id"
+}
+
+# Deals コンテナ
+resource "azurerm_cosmosdb_sql_container" "deals" {
+  name                = "Deals"
+  resource_group_name = azurerm_resource_group.main.name
+  account_name        = azurerm_cosmosdb_account.main.name
+  database_name       = azurerm_cosmosdb_sql_database.main.name
+  partition_key_path  = "/deal_id"
+}
+
+# News コンテナ
+resource "azurerm_cosmosdb_sql_container" "news" {
+  name                = "News"
+  resource_group_name = azurerm_resource_group.main.name
+  account_name        = azurerm_cosmosdb_account.main.name
+  database_name       = azurerm_cosmosdb_sql_database.main.name
+  partition_key_path  = "/news_id"
+}

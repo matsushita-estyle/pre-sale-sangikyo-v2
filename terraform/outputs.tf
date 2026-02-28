@@ -33,3 +33,21 @@ output "backend_publish_profile_command" {
   description = "バックエンドのPublish Profile取得コマンド"
   value       = "az webapp deployment list-publishing-profiles --name ${azurerm_linux_web_app.backend.name} --resource-group ${azurerm_resource_group.main.name} --xml"
 }
+
+# Cosmos DB 接続情報
+output "cosmos_endpoint" {
+  description = "Cosmos DB エンドポイント"
+  value       = azurerm_cosmosdb_account.main.endpoint
+  sensitive   = false
+}
+
+output "cosmos_primary_key" {
+  description = "Cosmos DB プライマリキー"
+  value       = azurerm_cosmosdb_account.main.primary_key
+  sensitive   = true
+}
+
+output "cosmos_database_name" {
+  description = "Cosmos DB データベース名"
+  value       = azurerm_cosmosdb_sql_database.main.name
+}

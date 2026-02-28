@@ -2,6 +2,11 @@
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.api.routes import router as api_router
+from app.core.logging_config import setup_logging
+
+# Setup logging
+setup_logging(level="INFO")
 
 app = FastAPI(
     title="Sangikyo V2 API",
@@ -17,6 +22,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# API routes (router already has prefix="/api/v1")
+app.include_router(api_router)
 
 
 @app.get("/")
