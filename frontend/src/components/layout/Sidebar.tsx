@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { UserSelector } from './UserSelector'
 
 interface SidebarProps {
   isExpanded: boolean
@@ -94,6 +95,9 @@ export function Sidebar({ isExpanded, onToggle }: SidebarProps) {
             })}
           </div>
         </nav>
+
+        {/* ユーザー選択 */}
+        <UserSelector isExpanded={isExpanded} />
 
         {/* フッター */}
         <div className="p-3 border-t border-gray-200">
