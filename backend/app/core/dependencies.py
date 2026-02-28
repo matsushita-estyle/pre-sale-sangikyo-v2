@@ -1,6 +1,7 @@
 """FastAPI dependencies for dependency injection."""
 from app.repositories.user import UserRepository
 from app.repositories.customer import CustomerRepository
+from app.repositories.deal import DealRepository
 
 
 def get_user_repository() -> UserRepository:
@@ -19,3 +20,12 @@ def get_customer_repository() -> CustomerRepository:
         CustomerRepository instance
     """
     return CustomerRepository()
+
+
+def get_deal_repository() -> DealRepository:
+    """Provide DealRepository instance.
+
+    Returns:
+        DealRepository instance
+    """
+    return DealRepository()

@@ -75,11 +75,92 @@ def seed_customers():
             print(f"✗ Error creating customer {customer['name']}: {e}")
 
 
+def seed_deals():
+    """Seed demo deals."""
+    deals_container = cosmos_client.get_container("Deals")
+
+    demo_deals = [
+        {
+            "id": "1",
+            "deal_id": "1",
+            "customer_id": "1",
+            "customer_name": "KDDI株式会社",
+            "sales_user_id": "1",
+            "sales_user_name": "山田太郎",
+            "deal_stage": "商談",
+            "deal_amount": 50000000,
+            "service_type": "通信インフラ構築",
+            "last_contact_date": "2026-02-25",
+            "notes": "5G基地局構築プロジェクト。関西エリア10拠点の提案中。",
+        },
+        {
+            "id": "2",
+            "deal_id": "2",
+            "customer_id": "2",
+            "customer_name": "ソフトバンク株式会社",
+            "sales_user_id": "1",
+            "sales_user_name": "山田太郎",
+            "deal_stage": "提案",
+            "deal_amount": 30000000,
+            "service_type": "技術人材派遣",
+            "last_contact_date": "2026-02-20",
+            "notes": "ネットワークエンジニア5名の派遣。6ヶ月契約。",
+        },
+        {
+            "id": "3",
+            "deal_id": "3",
+            "customer_id": "3",
+            "customer_name": "楽天グループ株式会社",
+            "sales_user_id": "2",
+            "sales_user_name": "佐藤花子",
+            "deal_stage": "見込み",
+            "deal_amount": 15000000,
+            "service_type": "危機管理対策",
+            "last_contact_date": "2026-02-15",
+            "notes": "データセンターのBCP対策コンサルティング。初回ヒアリング済み。",
+        },
+        {
+            "id": "4",
+            "deal_id": "4",
+            "customer_id": "1",
+            "customer_name": "KDDI株式会社",
+            "sales_user_id": "2",
+            "sales_user_name": "佐藤花子",
+            "deal_stage": "受注",
+            "deal_amount": 80000000,
+            "service_type": "通信インフラ構築",
+            "last_contact_date": "2026-01-30",
+            "notes": "光ファイバー網構築プロジェクト（受注済み）。3月着工予定。",
+        },
+        {
+            "id": "5",
+            "deal_id": "5",
+            "customer_id": "2",
+            "customer_name": "ソフトバンク株式会社",
+            "sales_user_id": "1",
+            "sales_user_name": "山田太郎",
+            "deal_stage": "失注",
+            "deal_amount": 20000000,
+            "service_type": "技術人材派遣",
+            "last_contact_date": "2026-01-15",
+            "notes": "価格面で他社に決定。次回案件で再提案予定。",
+        },
+    ]
+
+    for deal in demo_deals:
+        try:
+            deals_container.upsert_item(deal)
+            print(f"✓ Deal created: {deal['customer_name']} - {deal['service_type']} ({deal['deal_stage']})")
+        except Exception as e:
+            print(f"✗ Error creating deal {deal['deal_id']}: {e}")
+
+
 def seed_all():
     """Seed all demo data."""
     print("🌱 Seeding demo data...")
     seed_users()
     seed_customers()
+    seed_deals()
     print("✅ Demo data seeded successfully!")
 
 

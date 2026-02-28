@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { MainLayout } from '@/components/layout/MainLayout'
-import { getUsers, getCustomers } from '@/lib/api'
+import { getUsers, getCustomers, getDeals } from '@/lib/api'
 
 export default function DataPage() {
   const {
@@ -23,8 +23,17 @@ export default function DataPage() {
     queryFn: getCustomers,
   })
 
-  const isLoading = usersLoading || customersLoading
-  const error = usersError || customersError
+  const {
+    data: deals = [],
+    isLoading: dealsLoading,
+    error: dealsError,
+  } = useQuery({
+    queryKey: ['deals'],
+    queryFn: getDeals,
+  })
+
+  const isLoading = usersLoading || customersLoading || dealsLoading
+  const error = usersError || customersError || dealsError
 
   if (isLoading) {
     return (
@@ -104,7 +113,7 @@ export default function DataPage() {
         </section>
 
         {/* Customers Section */}
-        <section>
+        <section className="mb-12">
           <h2 className="text-2xl font-semibold mb-4">
             Customers ({customers.length})
           </h2>
@@ -152,6 +161,85 @@ export default function DataPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {customer.phone || '-'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        {/* Deals Section */}
+        <section>
+          <h2 className="text-2xl font-semibold mb-4">
+            Deals ({deals.length})
+          </h2>
+          <div className="bg-white rounded-lg shadow overflow-hidden">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    ID
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    顧客
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    営業担当
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    ステージ
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    サービス種別
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    金額
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    最終接触日
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {deals.map((deal) => (
+                  <tr key={deal.deal_id}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {deal.deal_id}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {deal.customer_name || '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {deal.sales_user_name || '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <span
+                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          deal.deal_stage === '受注'
+                            ? 'bg-green-100 text-green-800'
+                            : deal.deal_stage === '失注'
+                            ? 'bg-red-100 text-red-800'
+                            : deal.deal_stage === '商談'
+                            ? 'bg-blue-100 text-blue-800'
+                            : deal.deal_stage === '提案'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-gray-100 text-gray-800'
+                        }`}
+                      >
+                        {deal.deal_stage}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {deal.service_type || '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {deal.deal_amount
+                        ? `¥${deal.deal_amount.toLocaleString()}`
+                        : '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {deal.last_contact_date || '-'}
                     </td>
                   </tr>
                 ))}
