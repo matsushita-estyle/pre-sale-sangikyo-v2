@@ -48,17 +48,9 @@ export function ChatMessages({
         ))}
 
         {/* エージェント進捗表示（ローディング中のみ） */}
-        {isLoading && (agentEvents.length > 0 || agentCurrentMessage) && (
+        {isLoading && (
           <div className="mb-6">
             <AgentProgress events={agentEvents} currentMessage={agentCurrentMessage} />
-          </div>
-        )}
-
-        {/* 従来のローディング表示（エージェント進捗がない場合） */}
-        {isLoading && agentEvents.length === 0 && !agentCurrentMessage && (
-          <div className="flex items-center space-x-2 text-gray-600 mb-4">
-            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>
-            <span>回答を生成中...</span>
           </div>
         )}
 
