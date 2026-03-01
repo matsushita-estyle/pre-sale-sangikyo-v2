@@ -13,7 +13,8 @@ from app.repositories.deal import DealRepository
 from app.repositories.user import UserRepository
 from app.services.copilot_service import CopilotService, get_copilot_service
 from app.schemas.agent import AgentQueryRequest, ProgressEvent, ProgressEventType
-from app.agent.mock_orchestrator import MockAgentOrchestrator
+from app.agent.orchestrator import AgentOrchestrator
+# from app.agent.mock_orchestrator import MockAgentOrchestrator  # モック版（テスト用に残す）
 
 logger = logging.getLogger(__name__)
 
@@ -258,7 +259,7 @@ async def agent_query_stream(request: AgentQueryRequest):
     """
     エージェントクエリ（SSEストリーミング）
 
-    進捗状況をリアルタイムで返す（モック版）
+    Gemini Function Calling Agentを使用して進捗状況をリアルタイムで返す
 
     Args:
         request: Agent query request with user_id and query
@@ -266,7 +267,7 @@ async def agent_query_stream(request: AgentQueryRequest):
     Returns:
         Server-Sent Events stream
     """
-    orchestrator = MockAgentOrchestrator()
+    orchestrator = AgentOrchestrator()
 
     async def generate():
         try:

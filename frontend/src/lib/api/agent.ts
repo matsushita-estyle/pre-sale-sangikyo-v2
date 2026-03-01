@@ -24,12 +24,56 @@ export const agentApi = {
   /**
    * エージェントに問い合わせ（SSE ストリーミング）
    */
-  queryStream: (userId: string, query: string): EventSource => {
-    const url = new URL(`${API_URL}/api/v1/sales-agent/query-stream`)
-    url.searchParams.set('user_id', userId)
-    url.searchParams.set('query', query)
+  queryStream: async (
+    userId: string,
+    query: string,
+    onEvent: (event: any) => void,
+    onError?: (error: Error) => void
+  ): Promise<void> => {
+    const res = await fetch(`${API_URL}/api/v1/agent/query-stream`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: userId, query }),
+    })
 
-    return new EventSource(url.toString())
+    if (!res.ok) {
+      throw new Error(`API Error: ${res.status} ${res.statusText}`)
+    }
+
+    const reader = res.body?.getReader()
+    const decoder = new TextDecoder()
+
+    if (!reader) {
+      throw new Error('Response body is null')
+    }
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        const chunk = decoder.decode(value)
+        const lines = chunk.split('\n')
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6)
+            try {
+              const event = JSON.parse(data)
+              onEvent(event)
+            } catch (e) {
+              console.error('Failed to parse SSE data:', data)
+            }
+          }
+        }
+      }
+    } catch (error) {
+      if (onError) {
+        onError(error as Error)
+      } else {
+        throw error
+      }
+    }
   },
 
   /**
