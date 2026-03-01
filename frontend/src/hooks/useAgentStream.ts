@@ -89,7 +89,7 @@ export function useAgentStream() {
               if (progressEvent.conversation_id) {
                 setState((prev) => ({
                   ...prev,
-                  conversationId: progressEvent.conversation_id,
+                  conversationId: progressEvent.conversation_id || null,
                 }))
               }
 
