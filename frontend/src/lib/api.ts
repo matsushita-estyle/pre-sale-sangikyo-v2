@@ -124,3 +124,12 @@ export async function getConversation(conversationId: string): Promise<Conversat
   }
   return response.json()
 }
+
+export async function deleteConversation(conversationId: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/api/v1/conversations/${conversationId}`, {
+    method: 'DELETE',
+  })
+  if (!response.ok) {
+    throw new Error('Failed to delete conversation')
+  }
+}

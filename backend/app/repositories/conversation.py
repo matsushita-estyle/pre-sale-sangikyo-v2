@@ -108,6 +108,21 @@ class ConversationRepository(BaseRepository):
         items = await self.query(query)
         return [Conversation(**item) for item in items]
 
+    async def delete_conversation(self, conversation_id: str) -> None:
+        """Delete a conversation (soft delete).
+
+        Args:
+            conversation_id: Conversation ID to delete
+        """
+        conv = await self.get_conversation(conversation_id)
+        if not conv:
+            raise ValueError(f"Conversation {conversation_id} not found")
+
+        conv_dict = conv.dict()
+        conv_dict["is_active"] = False
+        await self.upsert(conv_dict)
+        logger.info(f"Deleted conversation {conversation_id}")
+
     def _generate_title(self, first_query: str) -> str:
         """Generate conversation title from first query.
 

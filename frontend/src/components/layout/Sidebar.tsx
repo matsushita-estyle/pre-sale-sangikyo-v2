@@ -5,6 +5,7 @@ import {
   Database,
   ChevronRight,
   ChevronLeft,
+  History,
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -23,6 +24,7 @@ export function Sidebar({ isExpanded, onToggle, onNewConversation, onSelectConve
 
   const menuItems = [
     { href: '/', icon: MessageSquare, label: 'チャット' },
+    { href: '/conversations', icon: History, label: '会話履歴' },
     { href: '/data', icon: Database, label: 'データ管理' },
   ]
 

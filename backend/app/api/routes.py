@@ -367,6 +367,31 @@ async def list_user_conversations(
         raise HTTPException(status_code=500, detail=f"Error listing conversations: {str(e)}")
 
 
+@router.delete("/conversations/{conversation_id}")
+async def delete_conversation(
+    conversation_id: str,
+    repo: ConversationRepository = Depends(get_conversation_repository),
+):
+    """Delete a conversation (soft delete).
+
+    Args:
+        conversation_id: Conversation ID to delete
+        repo: ConversationRepository dependency
+
+    Returns:
+        Success message
+    """
+    try:
+        await repo.delete_conversation(conversation_id)
+        return {"message": "Conversation deleted successfully"}
+    except ValueError as e:
+        logger.error(f"Conversation not found: {conversation_id}")
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error deleting conversation {conversation_id}: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Error deleting conversation: {str(e)}")
+
+
 # ============================================================
 # Agent (SSE Streaming) Endpoints
 # ============================================================

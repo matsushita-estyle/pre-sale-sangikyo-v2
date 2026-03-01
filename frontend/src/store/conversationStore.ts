@@ -1,7 +1,7 @@
 'use client'
 
 import { create } from 'zustand'
-import { Conversation, getUserConversations } from '@/lib/api'
+import { Conversation, getUserConversations, deleteConversation as apiDeleteConversation } from '@/lib/api'
 
 interface ConversationStore {
   conversations: Conversation[]
@@ -13,6 +13,7 @@ interface ConversationStore {
   fetchConversations: (userId: string) => Promise<void>
   selectConversation: (conversationId: string | null) => void
   startNewConversation: () => void
+  deleteConversation: (conversationId: string) => Promise<void>
 }
 
 export const useConversationStore = create<ConversationStore>((set) => ({
@@ -40,5 +41,24 @@ export const useConversationStore = create<ConversationStore>((set) => ({
 
   startNewConversation: () => {
     set({ selectedConversationId: null })
+  },
+
+  deleteConversation: async (conversationId: string) => {
+    set({ isLoading: true, error: null })
+    try {
+      await apiDeleteConversation(conversationId)
+      set((state) => ({
+        conversations: state.conversations.filter((c) => c.id !== conversationId),
+        selectedConversationId:
+          state.selectedConversationId === conversationId ? null : state.selectedConversationId,
+        isLoading: false,
+      }))
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : 'Failed to delete conversation',
+        isLoading: false,
+      })
+      throw error
+    }
   },
 }))
