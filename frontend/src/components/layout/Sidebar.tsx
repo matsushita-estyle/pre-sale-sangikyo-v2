@@ -35,7 +35,7 @@ export function Sidebar({ isExpanded, onToggle, onNewConversation, onSelectConve
       {/* ヘッダー */}
       <div className="p-4 flex items-center justify-between border-b border-gray-200 flex-shrink-0">
         <h2
-          className={`text-lg font-bold text-gray-900 whitespace-nowrap transition-all duration-300 ${
+          className={`text-lg font-bold text-gray-600 whitespace-nowrap transition-all duration-300 ${
             isExpanded
               ? 'opacity-100 w-auto'
               : 'opacity-0 w-0 overflow-hidden'
@@ -98,14 +98,18 @@ export function Sidebar({ isExpanded, onToggle, onNewConversation, onSelectConve
         </div>
       </nav>
 
-      {/* 会話履歴リスト */}
-      <div className="flex-1 min-h-0">
-        <ConversationList
-          isExpanded={isExpanded}
-          onNewConversation={onNewConversation || (() => {})}
-          onSelectConversation={onSelectConversation || (() => {})}
-        />
-      </div>
+      {/* 会話履歴リスト - チャットページのみ表示 */}
+      {pathname === '/' ? (
+        <div className="flex-1 min-h-0">
+          <ConversationList
+            isExpanded={isExpanded}
+            onNewConversation={onNewConversation || (() => {})}
+            onSelectConversation={onSelectConversation || (() => {})}
+          />
+        </div>
+      ) : (
+        <div className="flex-1" />
+      )}
 
       {/* ユーザー選択 */}
       <div className="flex-shrink-0">
