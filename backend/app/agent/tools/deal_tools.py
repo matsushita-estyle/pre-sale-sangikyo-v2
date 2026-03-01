@@ -112,7 +112,11 @@ async def get_deal_details(deal_id: str) -> str:
 
 search_deals_declaration = types.FunctionDeclaration(
     name="search_deals",
-    description="営業担当者、案件ステージ、顧客IDで案件を検索します。",
+    description=(
+        "営業担当者、案件ステージ、顧客IDで案件を検索します。"
+        "このツールは案件ID、顧客名、ステージ、金額、サービスなど全ての情報を返すので、"
+        "通常はget_deal_detailsを追加で呼ぶ必要はありません。"
+    ),
     parameters=types.Schema(
         type=types.Type.OBJECT,
         properties={
@@ -134,7 +138,11 @@ search_deals_declaration = types.FunctionDeclaration(
 
 get_deal_details_declaration = types.FunctionDeclaration(
     name="get_deal_details",
-    description="指定された案件IDの詳細情報を取得します。",
+    description=(
+        "指定された案件IDの詳細情報を取得します。"
+        "注意: search_dealsで既に主要な情報（顧客名、ステージ、金額）が取得できるため、"
+        "特定の詳細情報（メモや最終接触日）が必要な場合のみ使用してください。"
+    ),
     parameters=types.Schema(
         type=types.Type.OBJECT,
         properties={

@@ -9,6 +9,7 @@ from google import genai
 from google.genai import types
 
 from app.agent.tools import execute_tool, get_tools
+from app.agent.prompts.system_prompt import SYSTEM_INSTRUCTION
 from app.schemas.agent import ProgressEvent, ProgressEventType
 
 logger = logging.getLogger(__name__)
@@ -26,47 +27,7 @@ class AgentOrchestrator:
         self.client = genai.Client(api_key=api_key)
         self.model_id = "gemini-2.0-flash"
         self.tools = get_tools()
-        self.system_instruction = self._get_system_instruction()
-
-    def _get_system_instruction(self) -> str:
-        """Get system instruction for the agent.
-
-        Returns:
-            System instruction string
-        """
-        return """あなたは営業支援AIアシスタントです。
-営業担当者の案件管理、顧客情報検索、最新ニュース収集をサポートします。
-
-利用可能なツール:
-- get_user_info: ユーザー情報を取得
-- search_customers: 顧客を検索
-- get_customer_details: 顧客詳細を取得
-- search_deals: 案件を検索
-- get_deal_details: 案件詳細を取得
-- search_latest_news: Google検索で最新ニュースを取得
-
-ツール使用時のガイドライン:
-1. search_dealsのdeal_stageパラメータ:
-   - ユーザーが特定のステージを指定していない場合は、パラメータを省略して全件検索する
-   - 「私の案件」「担当案件」などの質問では、deal_stageを指定せずにsales_user_idのみで検索する
-   - ステージの指定がある場合のみdeal_stageを使用する（例：「商談中の案件」「失注した案件」）
-
-2. search_customersのkeywordパラメータ:
-   - ユーザーが明示的にキーワードを指定していない場合は、パラメータを省略して全件検索する
-   - 「顧客一覧」「全ての顧客」などの質問では、keywordを省略する
-
-3. ユーザーに追加情報を聞き返すのは、必須パラメータが不明な場合のみにする
-   - オプションパラメータが不明な場合は、省略して実行する
-   - 不要な確認質問は避け、すぐにツールを実行する
-
-回答時のガイドライン:
-1. 必要なツールを適切に使用して情報を収集する
-2. 簡潔で分かりやすい回答を心がける
-3. Markdown形式で構造化された回答を返す
-4. 数値やデータは正確に伝える
-5. ユーザーの質問に直接答える
-6. 「私」という一人称を使ってユーザーに話しかける場合、ユーザー自身の情報を指す
-"""
+        self.system_instruction = SYSTEM_INSTRUCTION
 
     async def execute_query_stream(
         self, user_id: str, query: str

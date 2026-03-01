@@ -15,18 +15,18 @@ logger = logging.getLogger(__name__)
 # ========================================
 
 
-async def search_latest_news(keywords: list[str], days: int = 7) -> str:
-    """Search latest news using Google Search Grounding.
+async def search_latest_news(
+    company_name: str, keywords: list[str] | None = None
+) -> str:
+    """Search latest news for a specific company using Google Search Grounding.
 
     Args:
-        keywords: List of keywords to search for
-        days: Number of days to look back (default: 7)
+        company_name: Name of the company to search news for
+        keywords: Optional additional keywords to refine the search
 
     Returns:
         Formatted list of news articles
     """
-    keyword_str = "、".join(keywords)
-
     try:
         # Gemini APIキーを取得
         api_key = os.getenv("GEMINI_API_KEY")
@@ -37,19 +37,26 @@ async def search_latest_news(keywords: list[str], days: int = 7) -> str:
         # Gemini clientを作成
         client = genai.Client(api_key=api_key)
 
+        # 検索クエリの構築
+        search_query = f"{company_name} 最新ニュース"
+        if keywords:
+            search_query += " " + " ".join(keywords)
+
         # Google Search Groundingを使用してニュース検索
         prompt = (
-            f"「{keyword_str}」に関する最新ニュース（過去{days}日間）を検索し、"
-            f"実際のニュース記事を3〜5件、日付と概要付きで教えてください。\n"
+            f"「{company_name}」の最新ニュース（2024年以降）を検索し、"
+            f"実在するニュース記事を3〜5件、以下の形式で教えてください。\n\n"
+            f"検索クエリ: {search_query}\n\n"
             f"各ニュースは以下の形式で出力してください:\n"
-            f"- タイトル\n"
-            f"  日付: YYYY-MM-DD\n"
-            f"  概要: (100文字程度)\n"
+            f"1. **タイトル**: [ニュースタイトル]\n"
+            f"   - 日付: YYYY-MM-DD\n"
+            f"   - 概要: [100文字程度の要約]\n"
+            f"   - ソース: [情報源]\n"
         )
 
         config = types.GenerateContentConfig(
             tools=[types.Tool(google_search=types.GoogleSearch())],
-            temperature=0.3,
+            temperature=0.1,
         )
 
         # 非同期実行
@@ -62,9 +69,9 @@ async def search_latest_news(keywords: list[str], days: int = 7) -> str:
 
         # レスポンステキストを取得
         if response.text:
-            return f"{keyword_str} に関する最新ニュース:\n\n{response.text}"
+            return f"{company_name}の最新ニュース:\n\n{response.text}"
         else:
-            return f"{keyword_str} に関するニュースが見つかりませんでした。"
+            return f"{company_name}に関するニュースが見つかりませんでした。"
 
     except Exception as e:
         logger.error(f"Error in search_latest_news: {e}", exc_info=True)
@@ -78,20 +85,20 @@ async def search_latest_news(keywords: list[str], days: int = 7) -> str:
 
 search_latest_news_declaration = types.FunctionDeclaration(
     name="search_latest_news",
-    description="指定されたキーワードで最新のニュースを検索します。",
+    description="企業の最新ニュースを検索します（Google Search使用）。各企業ごとに1回ずつ呼び出してください。",
     parameters=types.Schema(
         type=types.Type.OBJECT,
         properties={
+            "company_name": types.Schema(
+                type=types.Type.STRING,
+                description="企業名（例: 'KDDI株式会社', 'ソフトバンク'）",
+            ),
             "keywords": types.Schema(
                 type=types.Type.ARRAY,
                 items=types.Schema(type=types.Type.STRING),
-                description="検索キーワードのリスト（例: ['KDDI', '5G']）",
-            ),
-            "days": types.Schema(
-                type=types.Type.INTEGER,
-                description="過去何日分のニュースを検索するか（デフォルト: 7日）",
+                description="追加の検索キーワード（任意。例: ['5G', 'データセンター']）",
             ),
         },
-        required=["keywords"],
+        required=["company_name"],
     ),
 )

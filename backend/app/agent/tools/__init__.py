@@ -64,7 +64,7 @@ def get_tools() -> list[types.Tool]:
 # ========================================
 
 
-async def execute_tool(tool_name: str, arguments: dict[str, Any]) -> str:
+async def execute_tool(tool_name: str, arguments: dict[str, Any]) -> Any:
     """Execute a tool by name.
 
     Args:
@@ -72,7 +72,7 @@ async def execute_tool(tool_name: str, arguments: dict[str, Any]) -> str:
         arguments: Arguments to pass to the tool
 
     Returns:
-        Tool execution result as a string
+        Tool execution result (string or dict)
 
     Raises:
         ValueError: If tool name is unknown
