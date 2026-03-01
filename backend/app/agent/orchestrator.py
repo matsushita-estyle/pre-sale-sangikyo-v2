@@ -43,7 +43,7 @@ class AgentOrchestrator:
 - get_customer_details: 顧客詳細を取得
 - search_deals: 案件を検索
 - get_deal_details: 案件詳細を取得
-- search_latest_news: 最新ニュースを検索
+- search_latest_news: Google検索で最新ニュースを取得
 
 ツール使用時のガイドライン:
 1. search_dealsのdeal_stageパラメータ:

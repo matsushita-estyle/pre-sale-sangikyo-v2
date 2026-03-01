@@ -211,7 +211,7 @@ async def get_deal_details(deal_id: str) -> str:
 
 
 async def search_latest_news(keywords: list[str], days: int = 7) -> str:
-    """Search latest news (mock implementation).
+    """Search latest news using Google Search Grounding.
 
     Args:
         keywords: List of keywords to search for
@@ -220,34 +220,55 @@ async def search_latest_news(keywords: list[str], days: int = 7) -> str:
     Returns:
         Formatted list of news articles
     """
-    # TODO: 実際のニュースAPIに置き換える
+    import asyncio
+    import os
+    from google import genai
+    from google.genai import types
+
     keyword_str = "、".join(keywords)
 
-    mock_news = [
-        {
-            "title": f"{keywords[0]}、次世代通信インフラに1000億円投資",
-            "date": "2026-02-28",
-            "summary": f"{keywords[0]}は次世代通信インフラの構築に向けて、総額1000億円の投資を発表しました。",
-        },
-        {
-            "title": f"{keywords[0]}、AI活用の新サービス開始",
-            "date": "2026-02-27",
-            "summary": f"{keywords[0]}はAI技術を活用した新しいサービスを3月から開始すると発表しました。",
-        },
-        {
-            "title": f"{keywords[0]}、5G基地局を全国展開",
-            "date": "2026-02-26",
-            "summary": f"{keywords[0]}は5G基地局を全国主要都市に展開する計画を発表しました。",
-        },
-    ]
+    try:
+        # Gemini APIキーを取得
+        api_key = os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            logger.error("GEMINI_API_KEY not found")
+            return "エラー: Gemini APIキーが設定されていません。"
 
-    result = f"{keyword_str} に関する最新ニュース（過去{days}日間）:\n\n"
-    for news in mock_news:
-        result += f"- {news['title']}\n"
-        result += f"  日付: {news['date']}\n"
-        result += f"  概要: {news['summary']}\n\n"
+        # Gemini clientを作成
+        client = genai.Client(api_key=api_key)
 
-    return result
+        # Google Search Groundingを使用してニュース検索
+        prompt = (
+            f"「{keyword_str}」に関する最新ニュース（過去{days}日間）を検索し、"
+            f"実際のニュース記事を3〜5件、日付と概要付きで教えてください。\n"
+            f"各ニュースは以下の形式で出力してください:\n"
+            f"- タイトル\n"
+            f"  日付: YYYY-MM-DD\n"
+            f"  概要: (100文字程度)\n"
+        )
+
+        config = types.GenerateContentConfig(
+            tools=[types.Tool(google_search=types.GoogleSearch())],
+            temperature=0.3,
+        )
+
+        # 非同期実行
+        response = await asyncio.to_thread(
+            client.models.generate_content,
+            model="gemini-2.0-flash",
+            contents=prompt,
+            config=config,
+        )
+
+        # レスポンステキストを取得
+        if response.text:
+            return f"{keyword_str} に関する最新ニュース:\n\n{response.text}"
+        else:
+            return f"{keyword_str} に関するニュースが見つかりませんでした。"
+
+    except Exception as e:
+        logger.error(f"Error in search_latest_news: {e}", exc_info=True)
+        return f"ニュース検索中にエラーが発生しました: {str(e)}"
 
 
 # ========================================
