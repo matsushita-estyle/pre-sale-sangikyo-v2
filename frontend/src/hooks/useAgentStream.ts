@@ -164,6 +164,7 @@ export function useAgentStream() {
       searchHistory: [],
       isLoading: false,
       error: null,
+      conversationId: null,
     })
   }, [])
 
