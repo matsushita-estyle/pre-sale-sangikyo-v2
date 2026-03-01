@@ -111,18 +111,6 @@ export function Sidebar({ isExpanded, onToggle, onNewConversation, onSelectConve
       <div className="flex-shrink-0">
         <UserSelector isExpanded={isExpanded} />
       </div>
-
-      {/* フッター */}
-      <div className="p-3 border-t border-gray-200 flex-shrink-0">
-        <div
-          className={`px-3 py-2 text-xs text-gray-500 ${
-            isExpanded ? 'block' : 'hidden'
-          }`}
-        >
-          <p className="font-semibold mb-1">SFA Agent V2</p>
-          <p>Powered by ESTYLE</p>
-        </div>
-      </div>
     </div>
   )
 }
