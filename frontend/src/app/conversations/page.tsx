@@ -3,7 +3,7 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { MainLayout } from '@/components/layout/MainLayout'
-import { ConversationCard } from '@/components/conversation/ConversationCard'
+import { ConversationRow } from '@/components/conversation/ConversationRow'
 import { useUserStore } from '@/store/userStore'
 import { useConversationStore } from '@/store/conversationStore'
 import { MessageSquare } from 'lucide-react'
@@ -33,7 +33,7 @@ export default function ConversationsPage() {
       <div className="h-screen overflow-y-auto">
         {/* Header */}
         <header className="bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-10">
-          <div className="max-w-6xl mx-auto">
+          <div className="max-w-4xl mx-auto">
             <div className="flex items-center gap-3">
               <MessageSquare className="w-6 h-6 text-blue-600" />
               <h1 className="text-2xl font-bold text-gray-900">会話履歴</h1>
@@ -44,7 +44,7 @@ export default function ConversationsPage() {
 
         {/* Content */}
         <main className="px-6 py-6">
-          <div className="max-w-6xl mx-auto">
+          <div className="max-w-4xl mx-auto">
             {isLoading && (
               <div className="text-center py-12">
                 <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -69,9 +69,9 @@ export default function ConversationsPage() {
             )}
 
             {!isLoading && !error && conversations.length > 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
                 {conversations.map((conversation) => (
-                  <ConversationCard
+                  <ConversationRow
                     key={conversation.id}
                     conversation={conversation}
                     onSelect={handleSelectConversation}
