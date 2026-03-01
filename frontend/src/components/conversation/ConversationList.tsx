@@ -44,10 +44,10 @@ export function ConversationList({
   }
 
   return (
-    <div className="flex flex-col border-t border-gray-200">
+    <div className="flex flex-col border-t border-gray-200 h-full">
       {/* 会話履歴ヘッダー */}
       {isExpanded && (
-        <div className="px-3 py-2">
+        <div className="px-3 py-2 flex-shrink-0">
           <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
             会話履歴
           </h3>
@@ -55,7 +55,7 @@ export function ConversationList({
       )}
 
       {/* 新規会話ボタン */}
-      <div className="px-3 pb-2">
+      <div className="px-3 pb-2 flex-shrink-0">
         <button
           onClick={handleNewConversation}
           className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 transition-colors ${
@@ -69,7 +69,7 @@ export function ConversationList({
       </div>
 
       {/* 会話リスト */}
-      <div className="flex-1 overflow-y-auto px-3 space-y-1">
+      <div className="flex-1 overflow-y-auto px-3 space-y-1 min-h-0 pb-2">
         {isLoading && isExpanded && (
           <p className="text-xs text-gray-500 text-center py-2">読み込み中...</p>
         )}

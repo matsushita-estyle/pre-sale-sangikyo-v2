@@ -99,7 +99,7 @@ export function Sidebar({ isExpanded, onToggle, onNewConversation, onSelectConve
       </nav>
 
       {/* 会話履歴リスト */}
-      <div className="flex-1 overflow-hidden min-h-0">
+      <div className="flex-1 min-h-0">
         <ConversationList
           isExpanded={isExpanded}
           onNewConversation={onNewConversation || (() => {})}
