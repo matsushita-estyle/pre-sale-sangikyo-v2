@@ -10,6 +10,7 @@ interface AgentStreamState {
   searchHistory: SearchHistoryItem[]
   isLoading: boolean
   error: string | null
+  conversationId: string | null
 }
 
 export function useAgentStream() {
@@ -20,18 +21,20 @@ export function useAgentStream() {
     searchHistory: [],
     isLoading: false,
     error: null,
+    conversationId: null,
   })
 
-  const sendQuery = useCallback(async (userId: string, query: string) => {
-    // 状態リセット
-    setState({
+  const sendQuery = useCallback(async (userId: string, query: string, conversationId?: string) => {
+    // 状態リセット (conversationIdは保持)
+    setState((prev) => ({
       events: [],
       currentMessage: '',
       finalResponse: null,
       searchHistory: [],
       isLoading: true,
       error: null,
-    })
+      conversationId: prev.conversationId,
+    }))
 
     // function_callとfunction_resultのペアを保存するための一時マップ
     const functionCallMap = new Map<string, { arguments: Record<string, any> }>()
@@ -44,7 +47,11 @@ export function useAgentStream() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ user_id: userId, query }),
+        body: JSON.stringify({
+          user_id: userId,
+          query,
+          conversation_id: conversationId || null
+        }),
       })
 
       if (!response.ok) {
@@ -77,6 +84,14 @@ export function useAgentStream() {
 
             try {
               const progressEvent: ProgressEvent = JSON.parse(data)
+
+              // conversation_idを保存
+              if (progressEvent.conversation_id) {
+                setState((prev) => ({
+                  ...prev,
+                  conversationId: progressEvent.conversation_id,
+                }))
+              }
 
               // function_callを記録
               if (progressEvent.type === 'function_call' && progressEvent.tool_name) {

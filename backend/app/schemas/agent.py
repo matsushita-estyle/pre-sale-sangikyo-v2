@@ -26,6 +26,7 @@ class ProgressEvent(BaseModel):
     arguments: dict[str, Any] | None = None
     result: str | None = None
     content: str | None = None
+    conversation_id: str | None = None
 
 
 class AgentQueryRequest(BaseModel):
@@ -33,9 +34,22 @@ class AgentQueryRequest(BaseModel):
 
     user_id: str
     query: str
+    conversation_id: str | None = None
 
 
 class AgentQueryResponse(BaseModel):
     """エージェントクエリレスポンス（非ストリーミング）"""
 
     response: str
+
+
+class ConversationResponse(BaseModel):
+    """会話履歴レスポンス"""
+
+    id: str
+    user_id: str
+    title: str
+    messages: list[dict]
+    created_at: str
+    updated_at: str
+    is_active: bool = True

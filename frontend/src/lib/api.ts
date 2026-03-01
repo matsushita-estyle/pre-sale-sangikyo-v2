@@ -89,3 +89,38 @@ export async function sendChatMessage(
   const data: ChatResponse = await response.json()
   return data.response
 }
+
+// Conversation API types
+export interface Message {
+  message_id: string
+  role: 'user' | 'assistant'
+  content: string
+  timestamp: string
+  search_history?: any[]
+}
+
+export interface Conversation {
+  id: string
+  user_id: string
+  title: string
+  messages: Message[]
+  created_at: string
+  updated_at: string
+  is_active: boolean
+}
+
+export async function getUserConversations(userId: string): Promise<Conversation[]> {
+  const response = await fetch(`${API_BASE_URL}/api/v1/users/${userId}/conversations`)
+  if (!response.ok) {
+    throw new Error('Failed to fetch conversations')
+  }
+  return response.json()
+}
+
+export async function getConversation(conversationId: string): Promise<Conversation> {
+  const response = await fetch(`${API_BASE_URL}/api/v1/conversations/${conversationId}`)
+  if (!response.ok) {
+    throw new Error('Failed to fetch conversation')
+  }
+  return response.json()
+}

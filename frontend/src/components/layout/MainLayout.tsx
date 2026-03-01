@@ -5,9 +5,11 @@ import { Sidebar } from './Sidebar'
 
 interface MainLayoutProps {
   children: ReactNode
+  onNewConversation?: () => void
+  onSelectConversation?: (conversationId: string) => void
 }
 
-export function MainLayout({ children }: MainLayoutProps) {
+export function MainLayout({ children, onNewConversation, onSelectConversation }: MainLayoutProps) {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true)
 
   return (
@@ -16,6 +18,8 @@ export function MainLayout({ children }: MainLayoutProps) {
       <Sidebar
         isExpanded={isSidebarExpanded}
         onToggle={() => setIsSidebarExpanded(!isSidebarExpanded)}
+        onNewConversation={onNewConversation}
+        onSelectConversation={onSelectConversation}
       />
 
       {/* メインコンテンツエリア */}

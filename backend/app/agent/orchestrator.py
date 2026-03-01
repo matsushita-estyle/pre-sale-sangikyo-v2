@@ -30,13 +30,17 @@ class AgentOrchestrator:
         self.system_instruction = SYSTEM_INSTRUCTION
 
     async def execute_query_stream(
-        self, user_id: str, query: str
+        self,
+        user_id: str,
+        query: str,
+        conversation_history: list[dict] | None = None,
     ) -> AsyncIterator[ProgressEvent]:
         """Execute query with function calling and stream progress.
 
         Args:
             user_id: User ID making the query
             query: User's query string
+            conversation_history: Previous conversation in Gemini format (optional)
 
         Yields:
             ProgressEvent objects representing the agent's progress
@@ -46,9 +50,19 @@ class AgentOrchestrator:
             type=ProgressEventType.THINKING, message="クエリを解析中..."
         )
 
-        # チャット履歴の初期化（ユーザーコンテキストを含める）
-        initial_context = f"現在のユーザーID: {user_id}\n\nユーザーからの質問: {query}"
-        chat_history = [{"role": "user", "parts": [{"text": initial_context}]}]
+        # 履歴がある場合は利用
+        if conversation_history:
+            # トークン制限対策: 最新20件のみ保持
+            chat_history = self._truncate_history(conversation_history, max_messages=20)
+            # 新しいユーザークエリを追加
+            chat_history.append({
+                "role": "user",
+                "parts": [{"text": f"ユーザーID: {user_id}\n\n{query}"}],
+            })
+        else:
+            # 初回会話
+            initial_context = f"現在のユーザーID: {user_id}\n\nユーザーからの質問: {query}"
+            chat_history = [{"role": "user", "parts": [{"text": initial_context}]}]
 
         # Function Calling ループ
         max_iterations = 10
@@ -193,3 +207,22 @@ class AgentOrchestrator:
             type=ProgressEventType.ERROR,
             message="最大反復回数に達しました。質問を簡潔にしてお試しください。",
         )
+
+    def _truncate_history(
+        self, history: list[dict], max_messages: int = 20
+    ) -> list[dict]:
+        """Truncate history to最新N件のメッセージのみ保持 (トークン制限対策).
+
+        Args:
+            history: Conversation history in Gemini format
+            max_messages: Maximum number of messages to keep
+
+        Returns:
+            Truncated history
+        """
+        if len(history) > max_messages:
+            logger.info(
+                f"Truncating history from {len(history)} to {max_messages} messages"
+            )
+            return history[-max_messages:]
+        return history

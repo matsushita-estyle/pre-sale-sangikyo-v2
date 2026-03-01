@@ -33,6 +33,7 @@ export interface ProgressEvent {
   arguments?: Record<string, any>
   result?: string
   content?: string
+  conversation_id?: string
 }
 
 export interface AgentQueryRequest {
