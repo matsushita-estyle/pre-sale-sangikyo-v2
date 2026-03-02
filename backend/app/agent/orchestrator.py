@@ -3,6 +3,7 @@
 import asyncio
 import logging
 import os
+from datetime import datetime
 from typing import AsyncIterator
 
 from google import genai
@@ -73,9 +74,21 @@ class AgentOrchestrator:
             logger.info(f"Function calling iteration {iteration}/{max_iterations}")
 
             try:
+                # 現在日時を含むシステムインストラクションを作成
+                current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M")
+                system_instruction_with_time = f"""{self.system_instruction}
+
+---
+
+## 現在の日時情報
+**現在の日時**: {current_datetime}
+
+レポート作成時は、必ずこの日時を「参考情報」セクションの「データ取得日時」に記載してください。
+"""
+
                 # Geminiにリクエスト送信（同期APIを非同期ラッパーで実行）
                 config = types.GenerateContentConfig(
-                    systemInstruction=self.system_instruction,
+                    systemInstruction=system_instruction_with_time,
                     tools=self.tools,
                     temperature=0.7,
                 )
@@ -172,6 +185,15 @@ class AgentOrchestrator:
                         ]
                         if text_parts:
                             final_response = "".join(text_parts)
+
+                            # コードブロック記法(```で囲まれている場合)を除去
+                            import re
+                            # ```markdown\n...\n``` または ```\n...\n``` パターンを検出して中身だけ抽出
+                            code_block_pattern = r'^```(?:markdown)?\n(.*)\n```$'
+                            match = re.match(code_block_pattern, final_response.strip(), re.DOTALL)
+                            if match:
+                                final_response = match.group(1)
+                                logger.info("Removed code block markers from response")
 
                             logger.info(
                                 f"Final response generated. Length: {len(final_response)}"
