@@ -2,10 +2,9 @@
 
 import { useState } from 'react'
 import { MessageSquare, Trash2 } from 'lucide-react'
-import { formatDistanceToNow } from 'date-fns'
-import { ja } from 'date-fns/locale'
 import { Conversation } from '@/lib/api'
 import { DeleteConfirmDialog } from './DeleteConfirmDialog'
+import { formatRelativeTime } from '@/lib/dateUtils'
 
 interface ConversationRowProps {
   conversation: Conversation
@@ -34,12 +33,6 @@ export function ConversationRow({ conversation, onSelect, onDelete }: Conversati
     return conversation.messages.length
   }
 
-  const getRelativeTime = () => {
-    return formatDistanceToNow(new Date(conversation.updated_at), {
-      addSuffix: true,
-      locale: ja,
-    })
-  }
 
   const handleDelete = async () => {
     try {
@@ -70,7 +63,7 @@ export function ConversationRow({ conversation, onSelect, onDelete }: Conversati
             <div className="flex items-center gap-4 text-xs text-gray-500">
               <span>{getMessageCount()}件のメッセージ</span>
               <span>•</span>
-              <span>{getRelativeTime()}</span>
+              <span>{formatRelativeTime(conversation.updated_at)}</span>
             </div>
           </div>
 

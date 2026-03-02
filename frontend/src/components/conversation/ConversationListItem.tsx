@@ -1,8 +1,7 @@
 'use client'
 
 import { Conversation } from '@/lib/api'
-import { formatDistanceToNow } from 'date-fns'
-import { ja } from 'date-fns/locale'
+import { formatRelativeTime } from '@/lib/dateUtils'
 import { MessageSquare } from 'lucide-react'
 
 interface ConversationListItemProps {
@@ -30,18 +29,6 @@ export function ConversationListItem({
     return '新規会話'
   }
 
-  // 相対時間表示
-  const getRelativeTime = () => {
-    try {
-      return formatDistanceToNow(new Date(conversation.updated_at), {
-        addSuffix: true,
-        locale: ja,
-      })
-    } catch {
-      return ''
-    }
-  }
-
   return (
     <button
       onClick={onClick}
@@ -60,7 +47,7 @@ export function ConversationListItem({
       {isExpanded && (
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium truncate">{getTitle()}</p>
-          <p className="text-xs text-gray-500 truncate mt-0.5">{getRelativeTime()}</p>
+          <p className="text-xs text-gray-500 truncate mt-0.5">{formatRelativeTime(conversation.updated_at)}</p>
         </div>
       )}
     </button>
