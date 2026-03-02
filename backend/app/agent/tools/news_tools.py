@@ -42,9 +42,13 @@ async def search_latest_news(
         if keywords:
             search_query += " " + " ".join(keywords)
 
+        # 現在の年を取得
+        from datetime import datetime
+        current_year = datetime.now().year
+
         # Google Search Groundingを使用してニュース検索
         prompt = (
-            f"「{company_name}」の最新ニュース（2024年以降）を検索し、"
+            f"「{company_name}」の最新ニュース（{current_year}年）を検索し、"
             f"実在するニュース記事を3〜5件、以下の形式で教えてください。\n\n"
             f"検索クエリ: {search_query}\n\n"
             f"各ニュースは以下の形式で出力してください:\n"
